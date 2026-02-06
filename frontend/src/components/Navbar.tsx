@@ -2,35 +2,46 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X, User, Globe, ChevronDown } from "lucide-react";
+import { Menu, X, User, ChevronDown } from "lucide-react";
 
 export function Navbar({ lang }: { lang: string }) {
     const [isOpen, setIsOpen] = useState(false);
     const [langMenuOpen, setLangMenuOpen] = useState(false);
 
-    const translations: Record<string, { brand: string; buy: string; sell: string; services: string; jobs: string; login: string }> = {
+    const translations: Record<string, {
+        brand: string;
+        properties: string;
+        marketplace: string;
+        brotherhood: string;
+        community: string;
+        guide: string;
+        login: string;
+    }> = {
         en: {
             brand: "ARKAM'S WAY",
-            buy: "Buy",
-            sell: "Sell",
-            services: "Services",
-            jobs: "Jobs",
+            properties: "Properties",
+            marketplace: "Market",
+            brotherhood: "Brotherhood",
+            community: "Community",
+            guide: "Guide",
             login: "Login",
         },
         ar: {
             brand: "أركام واي",
-            buy: "شراء",
-            sell: "بيع",
-            services: "خدمات",
-            jobs: "وظائف",
+            properties: "العقارات",
+            marketplace: "السوق",
+            brotherhood: "الإخوة",
+            community: "المجتمع",
+            guide: "الدليل",
             login: "دخول",
         },
         tr: {
             brand: "ERKAM'IN YOLU",
-            buy: "Satın Al",
-            sell: "Sat",
-            services: "Hizmetler",
-            jobs: "İş İlanları",
+            properties: "Emlak",
+            marketplace: "Pazar",
+            brotherhood: "Kardeşlik",
+            community: "Topluluk",
+            guide: "Rehber",
             login: "Giriş",
         },
     };
@@ -45,6 +56,14 @@ export function Navbar({ lang }: { lang: string }) {
 
     const currentLang = languages.find(l => l.code === lang) || languages[0];
 
+    const navItems = [
+        { href: `/${lang}/properties`, label: t.properties },
+        { href: `/${lang}/marketplace`, label: t.marketplace },
+        { href: `/${lang}/brotherhood`, label: t.brotherhood },
+        { href: `/${lang}/community`, label: t.community },
+        { href: `/${lang}/guide`, label: t.guide },
+    ];
+
     return (
         <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-stone-200">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -55,15 +74,14 @@ export function Navbar({ lang }: { lang: string }) {
                                 {t.brand}
                             </span>
                         </Link>
-                        <div className="hidden sm:ms-10 sm:flex sm:space-x-8 rtl:space-x-reverse">
-                            <NavLink href={`/${lang}/properties`} active={false}>{t.buy}</NavLink>
-                            <NavLink href={`/${lang}/create-property`} active={false}>{t.sell}</NavLink>
-                            <NavLink href={`/${lang}/services`} active={false}>{t.services}</NavLink>
-                            <NavLink href={`/${lang}/jobs`} active={false}>{t.jobs}</NavLink>
+                        <div className="hidden lg:ms-8 lg:flex lg:space-x-6 rtl:space-x-reverse">
+                            {navItems.map((item) => (
+                                <NavLink key={item.href} href={item.href}>{item.label}</NavLink>
+                            ))}
                         </div>
                     </div>
 
-                    <div className="hidden sm:ms-6 sm:flex sm:items-center gap-4">
+                    <div className="hidden lg:ms-6 lg:flex lg:items-center gap-4">
                         {/* Language Selector Dropdown */}
                         <div className="relative">
                             <button
@@ -99,7 +117,7 @@ export function Navbar({ lang }: { lang: string }) {
                         </Link>
                     </div>
 
-                    <div className="-me-2 flex items-center sm:hidden">
+                    <div className="-me-2 flex items-center lg:hidden">
                         <button
                             onClick={() => setIsOpen(!isOpen)}
                             className="inline-flex items-center justify-center p-2 rounded-md text-stone-400 hover:text-stone-500 hover:bg-stone-100 focus:outline-none"
@@ -111,12 +129,11 @@ export function Navbar({ lang }: { lang: string }) {
             </div>
 
             {isOpen && (
-                <div className="sm:hidden bg-white border-t border-stone-100">
+                <div className="lg:hidden bg-white border-t border-stone-100">
                     <div className="pt-2 pb-3 space-y-1">
-                        <MobileNavLink href={`/${lang}/properties`}>{t.buy}</MobileNavLink>
-                        <MobileNavLink href={`/${lang}/create-property`}>{t.sell}</MobileNavLink>
-                        <MobileNavLink href={`/${lang}/services`}>{t.services}</MobileNavLink>
-                        <MobileNavLink href={`/${lang}/jobs`}>{t.jobs}</MobileNavLink>
+                        {navItems.map((item) => (
+                            <MobileNavLink key={item.href} href={item.href}>{item.label}</MobileNavLink>
+                        ))}
                     </div>
                     {/* Mobile Language Selector */}
                     <div className="border-t border-stone-100 pt-2 pb-3 px-3">
@@ -137,20 +154,23 @@ export function Navbar({ lang }: { lang: string }) {
                             ))}
                         </div>
                     </div>
+                    <div className="border-t border-stone-100 p-3">
+                        <Link href={`/${lang}/login`} className="flex items-center justify-center gap-2 bg-emerald-600 text-white px-4 py-3 rounded-lg hover:bg-emerald-700 transition-all">
+                            <User className="h-4 w-4" />
+                            <span className="font-medium">{t.login}</span>
+                        </Link>
+                    </div>
                 </div>
             )}
         </nav>
     );
 }
 
-function NavLink({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
+function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
     return (
         <Link
             href={href}
-            className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors ${active
-                ? "border-emerald-500 text-stone-900"
-                : "border-transparent text-stone-500 hover:border-stone-300 hover:text-stone-700"
-                }`}
+            className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-stone-500 hover:border-emerald-500 hover:text-emerald-600 transition-colors"
         >
             {children}
         </Link>
@@ -161,7 +181,7 @@ function MobileNavLink({ href, children }: { href: string; children: React.React
     return (
         <Link
             href={href}
-            className="block ps-3 pe-4 py-2 border-l-4 border-transparent text-base font-medium text-stone-500 hover:bg-stone-50 hover:border-stone-300 hover:text-stone-700"
+            className="block ps-3 pe-4 py-2 border-l-4 border-transparent text-base font-medium text-stone-500 hover:bg-stone-50 hover:border-emerald-500 hover:text-emerald-600"
         >
             {children}
         </Link>
