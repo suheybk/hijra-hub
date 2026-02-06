@@ -142,13 +142,51 @@ export default function PropertiesClient({ lang }: { lang: string }) {
             if (filters.type && filters.type !== 'ALL') params.append('type', filters.type);
             if (filters.sort) params.append('sort', filters.sort);
 
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000';
-            const res = await fetch(`${apiUrl}/properties?${params.toString()}`);
-            if (!res.ok) throw new Error('Failed to fetch');
-            const data = await res.json();
-            setProperties(data);
+            // Try API first
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+            if (apiUrl) {
+                const res = await fetch(`${apiUrl}/properties?${params.toString()}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setProperties(data);
+                    setLoading(false);
+                    return;
+                }
+            }
+            // Fallback to static JSON
+            const res = await fetch('/data/properties.json');
+            if (res.ok) {
+                let data = await res.json();
+                // Apply client-side filtering for static data
+                if (filters.type && filters.type !== 'ALL') {
+                    data = data.filter((p: Property) => p.type === filters.type);
+                }
+                if (filters.minPrice) {
+                    data = data.filter((p: Property) => p.price >= parseInt(filters.minPrice));
+                }
+                if (filters.maxPrice) {
+                    data = data.filter((p: Property) => p.price <= parseInt(filters.maxPrice));
+                }
+                // Apply sorting
+                if (filters.sort === 'priceLow') {
+                    data.sort((a: Property, b: Property) => a.price - b.price);
+                } else if (filters.sort === 'priceHigh') {
+                    data.sort((a: Property, b: Property) => b.price - a.price);
+                }
+                setProperties(data);
+            }
         } catch (error) {
             console.error(error);
+            // Try static JSON on error
+            try {
+                const res = await fetch('/data/properties.json');
+                if (res.ok) {
+                    const data = await res.json();
+                    setProperties(data);
+                }
+            } catch (e) {
+                console.error('Static fallback failed:', e);
+            }
         } finally {
             setLoading(false);
         }

@@ -22,13 +22,35 @@ export function FeaturedProperties({ lang }: { lang: string }) {
     useEffect(() => {
         async function fetchProperties() {
             try {
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000';
-                const res = await fetch(`${apiUrl}/properties`);
-                if (!res.ok) throw new Error('Failed to fetch');
-                const data = await res.json();
-                setProperties(data.slice(0, 3)); // Take first 3
+                // First try the API
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+                if (apiUrl) {
+                    const res = await fetch(`${apiUrl}/properties`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        setProperties(data.slice(0, 3));
+                        setLoading(false);
+                        return;
+                    }
+                }
+                // Fallback to static JSON
+                const res = await fetch('/data/properties.json');
+                if (res.ok) {
+                    const data = await res.json();
+                    setProperties(data.slice(0, 3));
+                }
             } catch (error) {
                 console.error(error);
+                // Try static JSON on error
+                try {
+                    const res = await fetch('/data/properties.json');
+                    if (res.ok) {
+                        const data = await res.json();
+                        setProperties(data.slice(0, 3));
+                    }
+                } catch (e) {
+                    console.error('Static fallback failed:', e);
+                }
             } finally {
                 setLoading(false);
             }
