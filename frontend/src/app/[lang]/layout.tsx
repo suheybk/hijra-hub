@@ -17,7 +17,16 @@ export const metadata: Metadata = {
   description: "Your gateway to a new life in Saudi Arabia. Buy property, find jobs, and secure your residency.",
 };
 
-export default async function RootLayout({
+// Required for static export with dynamic routes
+export function generateStaticParams() {
+  return [
+    { lang: 'en' },
+    { lang: 'ar' },
+    { lang: 'tr' },
+  ];
+}
+
+export default async function LangLayout({
   children,
   params,
 }: {
