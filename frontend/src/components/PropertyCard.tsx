@@ -1,72 +1,102 @@
+"use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { MapPin, Bed, Bath, Maximize } from "lucide-react";
 
 interface Property {
     id: string;
-    title: string;
+    title: { en: string; ar: string; tr: string } | string;
     price: number;
-    location: { city: string; address: string };
-    features: { bedrooms?: number; bathrooms?: number; area: number };
-    images: string[];
     type: string;
+    location: { city: string; address: string };
+    images: string[];
+    features: { bedrooms: number; bathrooms: number; area: number };
 }
 
 export default function PropertyCard({ property, lang }: { property: Property; lang: string }) {
-    const isRTL = lang === 'ar';
+    // Get localized title
+    const getTitle = () => {
+        if (typeof property.title === 'string') return property.title;
+        return property.title[lang as keyof typeof property.title] || property.title.en;
+    };
+
+    const typeLabels: Record<string, Record<string, string>> = {
+        en: { VILLA: "Villa", APARTMENT: "Apartment", LAND: "Land", COMMERCIAL: "Commercial" },
+        ar: { VILLA: "فيلا", APARTMENT: "شقة", LAND: "أرض", COMMERCIAL: "تجاري" },
+        tr: { VILLA: "Villa", APARTMENT: "Daire", LAND: "Arsa", COMMERCIAL: "Ticari" }
+    };
+
+    const labels = typeLabels[lang] || typeLabels.en;
+    const typeLabel = labels[property.type] || property.type;
+
+    // Format price
+    const formatPrice = (price: number) => {
+        if (lang === 'ar') {
+            return `${price.toLocaleString('ar-SA')} ر.س`;
+        } else if (lang === 'tr') {
+            return `${price.toLocaleString('tr-TR')} SAR`;
+        }
+        return `${price.toLocaleString()} SAR`;
+    };
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition overflow-hidden group">
-            <div className="relative h-64 w-full overflow-hidden">
-                <Image
-                    src={property.images[0]}
-                    alt={property.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition duration-500"
-                />
-                <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-emerald-800 uppercase tracking-wide">
-                    {property.type}
-                </div>
-            </div>
-
-            <div className="p-5">
-                <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-lg font-bold text-gray-900 line-clamp-1">{property.title}</h3>
-                </div>
-
-                <div className="flex items-center text-gray-500 text-sm mb-4">
-                    <MapPin className="w-4 h-4 me-1" />
-                    {property.location.city}
-                </div>
-
-                <div className="flex items-center gap-4 text-gray-600 text-sm mb-4">
-                    {property.features.bedrooms && (
-                        <div className="flex items-center gap-1">
-                            <Bed className="w-4 h-4" />
-                            <span>{property.features.bedrooms} Beds</span>
-                        </div>
-                    )}
-                    {property.features.bathrooms && (
-                        <div className="flex items-center gap-1">
-                            <Bath className="w-4 h-4" />
-                            <span>{property.features.bathrooms} Baths</span>
-                        </div>
-                    )}
-                    <div className="flex items-center gap-1">
-                        <Maximize className="w-4 h-4" />
-                        <span>{property.features.area} m²</span>
+        <Link href={`/${lang}/properties/${property.id}`} className="group">
+            <div className="bg-white rounded-2xl shadow-sm border border-stone-100 overflow-hidden hover:shadow-lg transition-all duration-300 group-hover:-translate-y-1">
+                {/* Image */}
+                <div className="relative h-56 overflow-hidden">
+                    <Image
+                        src={property.images[0]}
+                        alt={getTitle()}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute top-4 left-4">
+                        <span className="bg-emerald-600 text-white px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
+                            {typeLabel}
+                        </span>
                     </div>
                 </div>
 
-                <div className="flex justify-between items-center pt-4 border-t border-gray-100">
-                    <div className="text-xl font-bold text-emerald-600">
-                        {(property.price).toLocaleString()} <span className="text-sm font-normal text-gray-500">SAR</span>
+                {/* Content */}
+                <div className="p-5">
+                    <h3 className="font-bold text-lg text-stone-900 mb-2 line-clamp-1 group-hover:text-emerald-600 transition-colors">
+                        {getTitle()}
+                    </h3>
+
+                    <div className="flex items-center text-stone-500 text-sm mb-4">
+                        <MapPin className="h-4 w-4 me-1 flex-shrink-0" />
+                        <span className="line-clamp-1">{property.location.address}</span>
                     </div>
-                    <button className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-600 transition">
-                        {isRTL ? 'Detaylar' : 'View Details'}
-                    </button>
+
+                    {/* Features */}
+                    <div className="flex items-center gap-4 text-stone-600 text-sm mb-4">
+                        {property.features.bedrooms > 0 && (
+                            <div className="flex items-center gap-1">
+                                <Bed className="h-4 w-4" />
+                                <span>{property.features.bedrooms}</span>
+                            </div>
+                        )}
+                        {property.features.bathrooms > 0 && (
+                            <div className="flex items-center gap-1">
+                                <Bath className="h-4 w-4" />
+                                <span>{property.features.bathrooms}</span>
+                            </div>
+                        )}
+                        <div className="flex items-center gap-1">
+                            <Maximize className="h-4 w-4" />
+                            <span>{property.features.area} m²</span>
+                        </div>
+                    </div>
+
+                    {/* Price */}
+                    <div className="pt-4 border-t border-stone-100">
+                        <span className="text-xl font-bold text-emerald-600">
+                            {formatPrice(property.price)}
+                        </span>
+                    </div>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 }

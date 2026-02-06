@@ -2,11 +2,23 @@ import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
 import { Footer } from "@/components/Footer";
 import { Building2, Briefcase, FileCheck, ArrowRight } from "lucide-react";
+import { FeaturedProperties } from "@/components/FeaturedProperties";
+import { SearchBar } from "@/components/SearchBar";
 
 export default async function Home({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
 
-  const t = {
+  const translations: Record<string, {
+    servicesTitle: string;
+    servicesSub: string;
+    service1: string;
+    service1Desc: string;
+    service2: string;
+    service2Desc: string;
+    service3: string;
+    service3Desc: string;
+    cta: string;
+  }> = {
     en: {
       servicesTitle: "Complete Migration Support",
       servicesSub: "Everything you need to move to Saudi Arabia with confidence.",
@@ -28,14 +40,31 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
       service3: "مطابقة الوظائف",
       service3Desc: "تواصل مع أفضل أصحاب العمل الذين يبحثون عن مواهب مثلك.",
       cta: "اعرف المزيد"
+    },
+    tr: {
+      servicesTitle: "Kapsamlı Göç Desteği",
+      servicesSub: "Suudi Arabistan'a güvenle taşınmak için ihtiyacınız olan her şey.",
+      service1: "Gayrimenkul",
+      service1Desc: "Krallık genelinde daireler, villalar ve araziler için doğrulanmış ilanları inceleyin.",
+      service2: "İkamet Desteği",
+      service2Desc: "Premium İkamet ve yatırımcılar için yasal gereklilikler hakkında rehberlik.",
+      service3: "İş Eşleştirme",
+      service3Desc: "Sizin gibi yetenekler arayan önde gelen işverenlerle bağlantı kurun.",
+      cta: "Daha Fazla Bilgi"
     }
-  }[lang === 'ar' ? 'ar' : 'en'];
+  };
+
+  const t = translations[lang] || translations.en;
 
   return (
     <main className="min-h-screen bg-stone-50">
       <Navbar lang={lang} />
 
       <Hero lang={lang} />
+
+      <FeaturedProperties lang={lang} />
+
+      <SearchBar lang={lang} />
 
       <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
@@ -51,7 +80,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
             </div>
             <h3 className="text-xl font-semibold mb-3 text-stone-900">{t.service1}</h3>
             <p className="text-stone-600 mb-6 leading-relaxed">{t.service1Desc}</p>
-            <a href="#" className="flex items-center text-emerald-600 font-medium hover:text-emerald-700">
+            <a href={`/${lang}/properties`} className="flex items-center text-emerald-600 font-medium hover:text-emerald-700">
               {t.cta} <ArrowRight className="h-4 w-4 ms-2 rtl:rotate-180" />
             </a>
           </div>
@@ -63,7 +92,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
             </div>
             <h3 className="text-xl font-semibold mb-3 text-stone-900">{t.service2}</h3>
             <p className="text-stone-600 mb-6 leading-relaxed">{t.service2Desc}</p>
-            <a href="#" className="flex items-center text-emerald-600 font-medium hover:text-emerald-700">
+            <a href={`/${lang}/services`} className="flex items-center text-emerald-600 font-medium hover:text-emerald-700">
               {t.cta} <ArrowRight className="h-4 w-4 ms-2 rtl:rotate-180" />
             </a>
           </div>
@@ -75,7 +104,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
             </div>
             <h3 className="text-xl font-semibold mb-3 text-stone-900">{t.service3}</h3>
             <p className="text-stone-600 mb-6 leading-relaxed">{t.service3Desc}</p>
-            <a href="#" className="flex items-center text-emerald-600 font-medium hover:text-emerald-700">
+            <a href={`/${lang}/jobs`} className="flex items-center text-emerald-600 font-medium hover:text-emerald-700">
               {t.cta} <ArrowRight className="h-4 w-4 ms-2 rtl:rotate-180" />
             </a>
           </div>

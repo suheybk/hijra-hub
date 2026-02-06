@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Hijra Hub | Real Estate & Relocation for Muslims",
+  title: "Arkam's Way | Real Estate & Relocation in Saudi Arabia",
   description: "Your gateway to a new life in Saudi Arabia. Buy property, find jobs, and secure your residency.",
 };
 

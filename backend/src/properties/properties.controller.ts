@@ -12,7 +12,7 @@ export class PropertiesController {
   }
 
   @Get()
-  findAll(@Query() query: { location?: string; type?: string; minPrice?: string; maxPrice?: string }) {
+  findAll(@Query() query: { location?: string; type?: string; minPrice?: string; maxPrice?: string; sort?: string }) {
     return this.propertiesService.findAll(query);
   }
 
